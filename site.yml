@@ -4,6 +4,7 @@
   roles:
   - { role: admin, when: ansible_ssh_user == 'root' }
   - system
+  - mariadb
 
   post_tasks:
     - name: 完了
