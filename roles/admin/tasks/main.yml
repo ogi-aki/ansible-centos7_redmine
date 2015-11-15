@@ -1,0 +1,28 @@
+- name: 管理アカウントの作成
+  user:
+    name: "{{ admin_user }}"
+    group: wheel
+    password: "{{ admin_password }}"
+    
+- name: 管理アカウントの公開鍵を登録
+  authorized_key:
+    user: "{{ admin_user }}"
+    key: "{{ lookup('file', '/home/' + admin_user + '/.ssh/id_rsa.pub') }}"
+
+# CentOS 7.1のデフォルトの/etc/sudoersでは、%wheel ALL=(ALL) ALL がコメントアウト
+# 解除された状態となっている。
+- name: パスワードありで %wheel がsudo出来る設定をコメントアウト
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: '^(%wheel\s+ALL=\(ALL\)\s+ALL)'
+    line: '# \1'
+    backrefs: yes
+    state: present
+
+- name: パスワードなしで sudo 出来るように設定
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: '^#\s*(%wheel\s+ALL=\(ALL\)\s+NOPASSWD:\s+ALL)'
+    line: '\1'
+    backrefs: yes
+    state: present

@@ -1,0 +1,11 @@
+- name: ホスト名の設定
+  hostname: name={{ inventory_hostname }}
+
+- name: firewalldでHTTPを許可
+  firewalld: service=http zone=public permanent=true state=enabled immediate=true
+
+- name: firewalldでHTTPSを許可
+  firewalld: service=https zone=public permanent=true state=enabled immediate=true
+
+- name: firewalldでポート8282を許可
+  firewalld: port=8282/tcp zone=public permanent=true state=enabled immediate=true

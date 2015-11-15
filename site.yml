@@ -1,0 +1,11 @@
+---
+- hosts: redmine-servers
+  become: yes
+  roles:
+  - { role: admin, when: ansible_ssh_user == 'root' }
+  - system
+
+  post_tasks:
+    - name: 完了
+      debug:
+        msg='インストールが完了しました。http://ホスト名 にアクセスして下さい。'
