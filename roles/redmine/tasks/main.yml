@@ -1,0 +1,108 @@
+- name: ImageMagickと日本語フォント(IPA Pゴシック)のインストール
+  yum: name='ImageMagick,ImageMagick-devel,ipa-pgothic-fonts'
+
+- name: Redmineのソースコードを展開
+  unarchive: src={{ redmine_archive }} dest=/var/lib
+
+- name: バージョン非依存パスのシンボリックリンクの作成
+  file: src={{ redmine_dir }} dest=/var/lib/redmine force=yes state=link
+
+- name: redmineグループの作成
+  group: name={{ redmine_group }} gid=1000
+  
+- name: redmineユーザーの作成
+  user: name={{ redmine_user }} uid=1000 group={{ redmine_group }}
+        password={{ redmine_password }}
+
+- name: database.ymlの作成
+  become_user: redmine
+  template:
+    src=database.yml.j2
+    dest={{ redmine_dir }}/config/database.yml
+    mode=0600
+
+- name: configuration.ymlの作成
+  become_user: redmine
+  template:
+    src=configuration.yml.j2
+    dest={{ redmine_dir }}/config/configuration.yml
+    mode=0600
+
+- name: gemパッケージのインストール
+  become_user: redmine
+  command: 
+    bundle install --path vendor/bundler --without development test
+    chdir={{ redmine_dir }}
+
+- name: secret tokenの作成
+  become_user: redmine
+  command:
+    bundle exec rake generate_secret_token
+    chdir={{ redmine_dir }}
+  environment:
+    RAILS_ENV: production
+
+- name: データベースのマイグレーション
+  become_user: redmine
+  command:
+    bundle exec rake db:migrate
+    chdir={{ redmine_dir }}
+  environment:
+    RAILS_ENV: production
+
+- name: デフォルトデータ(日本語)をロード
+  become_user: redmine
+  command:
+    bundle exec rake redmine:load_default_data
+    chdir={{ redmine_dir }}
+  environment:
+    RAILS_ENV: production
+    REDMINE_LANG: ja
+
+- name: farend_basicテーマのダウンロード
+  become_user: redmine
+  git:
+    repo=https://github.com/farend/redmine_theme_farend_basic.git
+    dest={{ redmine_dir }}/public/themes/farend_basic
+
+- name: テーマをfarend_basicに切り替え
+  become_user: redmine
+  command:
+    bundle exec rails r 'Setting["ui_theme"]="farend_basic"'
+    chdir={{ redmine_dir }}
+  environment:
+    RAILS_ENV: production
+
+- name: デフォルトの言語を日本語に変更
+  become_user: redmine
+  command:
+    bundle exec rails r 'Setting["default_language"]="ja"'
+    chdir={{ redmine_dir }}
+  environment:
+    RAILS_ENV: production
+
+- name: ユーザー名の表示形式を「姓 名」に変更
+  become_user: redmine
+  command:
+    bundle exec rails r 'Setting["user_format"]=:lastname_firstname'
+    chdir={{ redmine_dir }}
+  environment:
+    RAILS_ENV: production
+
+- name: 添付ファイルとリポジトリのエンコーディングを設定
+  become_user: redmine
+  command:
+    bundle exec rails r 'Setting["repositories_encodings"]="UTF-8,CP932,EUC-JP"'
+    chdir={{ redmine_dir }}
+  environment:
+    RAILS_ENV: production
+
+- name: 添付ファイルのサムネイルを表示
+  become_user: redmine
+  command:
+    bundle exec rails r 'Setting["thumbnails_enabled"]="1"'
+    chdir={{ redmine_dir }}
+  environment:
+    RAILS_ENV: production
+    
+

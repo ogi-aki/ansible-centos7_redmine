@@ -5,7 +5,7 @@ Ansible playbook to create redmine, unicorn and nginx on CentOS 7.
 ### target hostname
 
 * should be resolved to an IP address. (e.g. /etc/hosts)
-* modify this playbook's inventry file(hosts)
+* modify hostname in hosts file(inventorys)
 
 ### Linux admin account
 
@@ -14,7 +14,7 @@ This account is better the same as Ansible execution account.
 
 * determine account name and password
 * create hash from password
-* modify this playbook's group vars file(redmine-servers)
+* modify account variables in group_vars/redmine-servers file.
 * create ssh key pair if not exist.
 
 ### Linux redmine account
@@ -23,7 +23,23 @@ redmine account is used to setup, modify redmine, and execute unicorn.
 
 * determine account name and password
 * create hash from password
-* modify this playbook's group vars file(redmine-servers)
+* modify account variables in group_vars/redmine-servers file.
+
+### MariaDB root and redmine password
+
+* determine root password and redmine password
+* modify password variables in group_vars/redmine-servers file.
+
+### Prepare ruby rpm file
+
+This playbook, copy rpm file from ansible host to target, then install.
+
+* put ruby rpm file in roles/ruby/files/
+* modify rpm file variables in group_vars/redmine-servers file.
+
+### Prepare redmine file
+
+* put redmine tar archives in roles/redmine/files/
 
 ### Execute
 

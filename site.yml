@@ -5,6 +5,8 @@
   - { role: admin, when: ansible_ssh_user == 'root' }
   - system
   - mariadb
+  - ruby
+#  - redmine
 
   post_tasks:
     - name: 完了

@@ -1,0 +1,16 @@
+- name: Rubyがインストールされているか確認
+  command: rpm -q {{ ruby_rpm }}
+  register: ruby_rpm_installed
+  changed_when: ruby_rpm_installed.rc == 1
+  failed_when: false
+  
+- name: RubyのRPMを対象へコピー
+  copy: src={{ ruby_rpm_filename }} dest=/tmp/{{ ruby_rpm_filename }}
+  when: ruby_rpm_installed.rc == 1
+
+- name: Rubyのインストール
+  yum: name=/tmp/{{ ruby_rpm_filename }}
+  when: ruby_rpm_installed.rc == 1
+
+- name: bundler gemのインストール
+  gem: name=bundler state=latest user_install=no
