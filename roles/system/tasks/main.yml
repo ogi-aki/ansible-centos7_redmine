@@ -9,3 +9,13 @@
 
 - name: firewalldでポート8282を許可
   firewalld: port=8282/tcp zone=public permanent=true state=enabled immediate=true
+
+- name: パッケージの追加インストール
+  yum: name="{{ item }}"
+  with_items:
+    - acpid
+    - '@Development Tools'
+
+- name: acpidサービスの自動起動設定と起動
+  service: name=acpid enabled=yes state=started
+

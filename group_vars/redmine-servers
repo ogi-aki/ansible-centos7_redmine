@@ -1,3 +1,5 @@
 # Linux管理アカウント
+# admin_userには、使用する管理アカウント名を記述
+# admin_passwordには、使用する管理アカウントのパスワードをハッシュした文字列を記述
 admin_user: admin
 admin_password: $6$rounds=656000$.jE2cyz5uLj.olXB$YSzWzHezRTJd/5mUqOypddnUmMTAQOq7QF4fEDss15mrdp66vaDebw/PouemQkBTg2npkGyFWXdvOPiA.jmrK/
