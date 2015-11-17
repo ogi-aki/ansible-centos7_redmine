@@ -1,0 +1,28 @@
+- name: Gemfile.localの作成
+  become_user: redmine
+  template: 
+    src=Gemfile.local
+    dest={{ redmine_dir }}/Gemfile.local
+
+- name: gemのアップデート
+  become_user: redmine
+  command:
+    bundle update
+    chdir={{ redmine_dir }}
+
+- name: unicorn設定
+  become_user: redmine
+  template:
+    src=unicorn.rb
+    dest={{ redmine_dir }}/config/unicorn.rb
+
+- name: unicornサービスの設定をSystemdへ配置
+  template:
+    src=redmine-unicorn.service
+    dest=/usr/lib/systemd/system/redmine-unicorn.service
+
+- name: unicornサービス起動・自動起動設定
+  service: name=redmine-unicorn state=started enabled=yes
+
+
+    

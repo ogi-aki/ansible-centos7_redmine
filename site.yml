@@ -6,7 +6,9 @@
   - system
   - mariadb
   - ruby
-#  - redmine
+  - redmine
+  - unicorn
+  - nginx
 
   post_tasks:
     - name: 完了

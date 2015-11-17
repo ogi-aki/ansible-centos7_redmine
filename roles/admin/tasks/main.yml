@@ -1,7 +1,14 @@
+- name: 管理アカウントのグループを作成
+  group:
+    gid: 630
+    name: admin
+
 - name: 管理アカウントの作成
   user:
+    uid: 630
     name: "{{ admin_user }}"
-    group: wheel
+    group: admin
+    groups: wheel
     password: "{{ admin_password }}"
     
 - name: 管理アカウントの公開鍵を登録

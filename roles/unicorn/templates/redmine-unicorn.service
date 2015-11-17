@@ -1,0 +1,17 @@
+[Unit]
+Description=Redmine Unicorn Server
+Wants=mariadb.service
+After=mariadb.service
+
+[Service]
+WorkingDirectory=/var/lib/redmine
+Environment=RAILS_ENV=production
+SyslogIdentifier=redmine-unicorn
+PIDFile=/var/lib/redmine/tmp/pids/unicorn.pid
+
+ExecStart=/usr/bin/bundle exec "unicorn_rails -c config/unicorn.rb -E production" 
+ExecStop=/usr/bin/kill -QUIT $MAINPID
+ExecReload=/bin/kill -USR2 $MAINPID
+
+[Install]
+WantedBy=multi-user.target

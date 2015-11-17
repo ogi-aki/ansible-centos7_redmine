@@ -1,0 +1,44 @@
+- name: Nginx用のyumリポジトリを設定する
+  yum:
+    name: http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+    state: present
+
+- name: Nginxをyumインストールする
+  yum:
+    name: nginx
+
+- name: NginxのRedmine用設定ファイルを置く
+  template:
+    src: redmine.conf
+    dest: /etc/nginx/conf.d/redmine.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Nginxのデフォルト設定ファイルが存在したら別名で退避する
+  command: mv default.conf default.conf.orig
+  args:
+    chdir: /etc/nginx/conf.d/
+    removes: /etc/nginx/conf.d/default.conf
+
+- name: Nginx用ポリシーモジュールが適用済みか調べる
+  shell: semodule -l | grep nginx
+  register: semodule_nginx_result
+  failed_when: semodule_nginx_result.rc not in [0, 1]
+  changed_when: false
+
+- name: Nginx用ポリシーモジュールをコピー
+  copy:
+    src: nginx.pp
+    dest: /tmp/nginx.pp
+  when: semodule_nginx_result|failed
+
+- name: Nginx用ポリシーモジュールの適用
+  command: semodule -i /tmp/nginx.pp
+  when: semodule_nginx_result|failed
+
+- name: Nginxの起動・自動起動設定
+  service:
+    name: nginx
+    state: started
+    enabled: yes

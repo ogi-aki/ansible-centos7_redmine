@@ -2,58 +2,66 @@
 Ansible playbook to create redmine, unicorn and nginx on CentOS 7.
 
 ## Usage
-### target hostname
 
-* should be resolved to an IP address. (e.g. /etc/hosts)
-* modify hostname in hosts file(inventorys)
+### settings
 
-### Linux admin account
+#### hostname
 
-admin account is used to connect via ssh.
-This account is better the same as Ansible execution account.
+* Modify hostname in 'hosts' file(inventorys).  
+This name is set as target's hostname.
+So, this name should be resolved to an IP address. (e.g. /etc/hosts)
 
-* determine account name and password
-* create hash from password
-* modify account variables in group_vars/redmine-servers file.
-* create ssh key pair if not exist.
+#### Linux admin account
 
-### Linux redmine account
+This admin account is used by ansible to connect via ssh.
+
+* Default account is 'admin', and password is 'admin'.
+* Default account'S Public key is ~admin/.ssh/id_rsa.pub
+* To change, modify account variables(name and password) in group_vars/redmine-servers file.
+  * Password should be described as hash string, not plain text.
+  * Create ssh key pair (RSA) if not exist.  
+This playbook use an 'id_rsa.pub' in the .ssh/ in the account's home.
+
+##### Linux redmine account
 
 redmine account is used to setup, modify redmine, and execute unicorn.
 
-* determine account name and password
-* create hash from password
-* modify account variables in group_vars/redmine-servers file.
+* Default account is 'redmine', and password is 'redmine'.
+* To change, modify account variables(name and password) in group_vars/redmine-servers file.  
+  * Password should be describe as hash string, not plain text.
 
-### MariaDB root and redmine password
+#### MariaDB root and redmine password
 
-* determine root password and redmine password
-* modify password variables in group_vars/redmine-servers file.
+MariaDB root account's password, redmine account's password.
 
-### Prepare ruby rpm file
+* Modify password variables in group_vars/redmine-servers file.
+
+#### put ruby rpm file
 
 This playbook, copy rpm file from ansible host to target, then install.
 
 * put ruby rpm file in roles/ruby/files/
 * modify rpm file variables in group_vars/redmine-servers file.
 
-### Prepare redmine file
+#### Prepare redmine file
+
+This playbook, copy tar ball file from ansible host to target, then install.
 
 * put redmine tar archives in roles/redmine/files/
 
 ### Execute
 
 There are 2 steps to execute ansible-playbook.
-
-+ use root to ssh connect
+At first, use root to ssh connect. This needs to create linux admin account.
 
 ```
 ansible-centos7_redmine$ ansible-playbook -i hosts -u root -k site.yml
 ```
 
-+ use admin account to ssh connect
+Once created linux admin account, then can be used the account to ssh connect.
 
 ```
 ansible-centos7_redmine$ ansible-playbook -i hosts site.yml
 ```
+
 
